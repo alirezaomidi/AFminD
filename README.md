@@ -67,7 +67,7 @@ From now, you can use the `fragments.fasta` file to run ColabFold again and sear
 
 
 ## Cite
-```json
+```
 @article{
     doi:10.1073/pnas.2406407121,
     author = {Alireza Omidi  and Mads Harder Møller  and Nawar Malhis  and Jennifer M. Bui  and Jörg Gsponer },
