@@ -1,13 +1,12 @@
 <div align="center">
 <h1 align="center">AFminD: Predicting binding sites within a big protein</h1>
-<!-- <img alt="kaia-llama" height="200px" src="assets/kaia_llama.webp"> -->
-<!-- <p align="center"></p> -->
-
-
 </div>
 
 
 ## Overview
+AFminD is a tool that uses AlphaFold-Multimer to predict binding sites within a big protein. AFminD exploits the fact that the distogram data produced by the AlphaFold-Multimer's distogram head encodes potential interactions between residues. By calculating the residue distances between two protein chains, AFminD can pinpoint potential binding sites. The method is described in the following paper:
+
+[Omidi et al., AlphaFold-Multimer accurately captures interactions and dynamics of intrinsically disordered protein regions, Proc. Natl. Acad. Sci. U.S.A., 2024](https://doi.org/10.1073/pnas.2406407121)
 
 
 ## Installation
@@ -25,6 +24,9 @@ poetry install
 ```
 
 ## How to use
+
+### Data preparation
+
 
 ### Run ColabFold
 You need to provide both `--zip` and `--save-all` options to ColabFold. The `--save-all` option will save Disogram head's outputs in `.pkl` files, which we use later to calculate minD scores. If you use ColabFold's google colab notebook, simply make sure you have chekced the "save_all" option under "Advanced settings".
