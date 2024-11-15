@@ -45,7 +45,16 @@ def find_msa_file(zip_path):
     # get jobname
     jobname = get_jobname(zip_path)
 
-    msa_filename = f"{jobname}.a3m"
+    # find all .a3m files in the zip
+    msa_filename = None
+    with zipfile.ZipFile(zip_path) as z:
+        a3m_files = [f for f in z.namelist() if f.endswith(".a3m")]
+        msa_filename = f"{jobname}.a3m"
+        if msa_filename not in a3m_files:
+            msa_filename = f"{jobname}/{jobname}.a3m"  # ColabFold google colab notebook
+            if msa_filename not in a3m_files:
+                raise ValueError(f"No MSA file found in {zip_path}")
+
     return pd.DataFrame(
         [(zip_path, msa_filename, jobname)],
         columns=["zip_path", "msa_filename", "jobname"],

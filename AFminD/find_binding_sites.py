@@ -60,10 +60,10 @@ def get_binding_sites(df, prominence=0.02, distance=30):
 # %%
 @click.command()
 @click.option(
-    "-f",
-    "--distogram-file",
+    "-i",
+    "--input",
     type=click.Path(dir_okay=False, file_okay=True),
-    help="A CSV file containing expected distances",
+    help="A CSV file containing minDs",
     required=True,
 )
 @click.option(
@@ -78,12 +78,12 @@ def get_binding_sites(df, prominence=0.02, distance=30):
 )
 @click.option("--distance", type=int, default=30, help="Minimum distance between peaks")
 @click.option("--debug", is_flag=True, help="Print debug information", envvar="DEBUG")
-def main(distogram_file, output, prominence, distance, debug):
+def main(input, output, prominence, distance, debug):
     # logger level
     logger.setLevel(logging.DEBUG if debug else logging.INFO)
 
     # read the distogram file
-    df = pd.read_csv(distogram_file)
+    df = pd.read_csv(input)
 
     # get the binding sites
     df_binding_sites = (

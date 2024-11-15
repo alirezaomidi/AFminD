@@ -2,7 +2,9 @@
 import click
 import logging
 import pandas as pd
-from AFminD.utils import parse_jobname
+import os
+import zipfile
+from AFminD.utils import parse_jobname, get_jobname
 from AFminD.data.utils import read_fasta, write_fasta
 
 # %%
@@ -13,6 +15,16 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
+
+
+# %%
+def read_sequence_csv_file(zip_path):
+    jobname = get_jobname(zip_path)
+
+    sequence_csv_file = f"{jobname}/{jobname}.csv"
+    with zipfile.ZipFile(zip_path) as z:
+        with z.open(sequence_csv_file) as f:
+            return pd.read_csv(f)
 
 
 # %%
@@ -96,7 +108,7 @@ def cut_jobname(jobname, start, end, seq=None):
 
 
 # %%
-def cut_binding_sites(df, fasta, window=30):
+def cut_binding_sites(df, fasta, window=30, smart_jobname=False):
     """
     Cut the binding sites from the sequences
     Works only for two-chain proteins
@@ -112,10 +124,13 @@ def cut_binding_sites(df, fasta, window=30):
             continue
 
         chain_idx = ord(row.chain2) - ord("A")  # chain2 is the chain to cut
+        chain_char = chr(ord("A") + chain_idx)
         # jobname
-        jobnames = row.jobname.split("_")
-        chain_jobname = jobnames[chain_idx]
-        other_jobname = jobnames[1 - chain_idx]
+        if smart_jobname:
+            jobnames = row.jobname.split("_")
+            chain_jobname = jobnames[chain_idx]
+            other_jobname = jobnames[1 - chain_idx]
+
         # seq
         seqs = seq.split(":")
         chain_seq = seqs[chain_idx]
@@ -125,11 +140,19 @@ def cut_binding_sites(df, fasta, window=30):
         for peak in peaks:
             start = max(0, peak - window // 2)
             end = min(len(chain_seq), peak + window // 2 + 1)
-            jobname_cut = cut_jobname(chain_jobname, start, end, seq=chain_seq)
             chain_seq_cut = chain_seq[start:end]
-            new_fasta.append(
-                (f"{jobname_cut}_{other_jobname}", f"{chain_seq_cut}:{other_seq}")
-            )
+            if smart_jobname:
+                jobname_cut = cut_jobname(chain_jobname, start, end, seq=chain_seq)
+                new_fasta.append(
+                    (f"{jobname_cut}_{other_jobname}", f"{chain_seq_cut}:{other_seq}")
+                )
+            else:
+                new_fasta.append(
+                    (
+                        f"{row.jobname}_{chain_char}_{peak}",
+                        f"{chain_seq_cut}:{other_seq}",
+                    )
+                )
 
     return new_fasta
 
@@ -144,9 +167,10 @@ def cut_binding_sites(df, fasta, window=30):
     required=True,
 )
 @click.option(
-    "--fasta-file",
+    "-i",
+    "--input",
     type=click.Path(dir_okay=False, file_okay=True),
-    help="A fasta file containing the sequences",
+    help="A fasta file containing the sequences or a results.zip file",
     required=True,
 )
 @click.option(
@@ -171,15 +195,27 @@ def cut_binding_sites(df, fasta, window=30):
     default=["A"],
     show_default=True,
 )
+@click.option(
+    "--smart-jobname",
+    help="Modify jobname to reflect the cut. In this case, the jobname should follow the format 'nameA-from-to_nameB-from-to'",
+    default=False,
+    show_default=True,
+)
 @click.option("--debug", is_flag=True, help="Print debug information", envvar="DEBUG")
-def main(binding_sites_file, fasta_file, output, window, chain, debug):
+def main(binding_sites_file, input, output, window, chain, smart_jobname, debug):
     # logger level
     logger.setLevel(logging.DEBUG if debug else logging.INFO)
 
     chains = chain
 
     df = pd.read_csv(binding_sites_file)
-    fasta = read_fasta(fasta_file)
+    if input.endswith(".fasta"):
+        fasta = read_fasta(input)
+    elif input.endswith(".result.zip"):
+        seq_csv = read_sequence_csv_file(input)  # ColabFold google colab notebook
+        fasta = [(row.id, row.sequence) for row in seq_csv.itertuples()]
+    else:
+        raise ValueError(f"Unknown input file format {input}")
 
     fasta_cut = []
     for chain in chains:

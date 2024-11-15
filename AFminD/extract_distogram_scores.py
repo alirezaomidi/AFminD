@@ -36,6 +36,7 @@ def find_distogram_files(zip_path):
                 r"(.*)_all_rank_(\d+)_(.*)_model_(\d+)_seed_(\d+)(?:\.r(\d+))?\.distogram\.json",
                 distogram_file,
             ).groups()
+            pred_jobname = os.path.basename(pred_jobname)
             assert pred_jobname == jobname, f'Jobname "{jobname}" does not match regex'
             rank = int(rank)
             model = int(model)
@@ -120,9 +121,9 @@ def read_distogram(zip_path, score_filename, a3m_filename):
 
 @click.command()
 @click.option(
-    "-d",
-    "--colabfold-dir",
-    type=click.Path(dir_okay=True, file_okay=False, exists=True),
+    "-i",
+    "--input",
+    type=click.Path(dir_okay=True, file_okay=True, exists=True),
     required=True,
 )
 @click.option(
@@ -145,12 +146,18 @@ def read_distogram(zip_path, score_filename, a3m_filename):
     default=False,
 )
 @click.option("--debug", is_flag=True, help="Print debug information", envvar="DEBUG")
-def main(colabfold_dir, n_jobs, output, from_scratch, debug):
+def main(input, n_jobs, output, from_scratch, debug):
     # logger level
     logger.setLevel(logging.DEBUG if debug else logging.INFO)
 
     # list predictions
-    zip_files = glob(f"{colabfold_dir}/*.result.zip")
+    zip_files = []
+    if os.path.isfile(input) and input.endswith(".result.zip"):
+        zip_files.append(input)
+    elif os.path.isdir(input):
+        zip_files = glob(os.path.join(input, "*.result.zip"))
+    else:
+        raise ValueError(f"Invalid input: {input}. Must be a zip file or a directory")
 
     # run the jobs
     with concurrent.futures.ProcessPoolExecutor(max_workers=n_jobs) as executor:
