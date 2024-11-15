@@ -25,9 +25,6 @@ poetry install
 
 ## How to use
 
-### Data preparation
-
-
 ### Run ColabFold
 You need to provide both `--zip` and `--save-all` options to ColabFold. The `--save-all` option will save Disogram head's outputs in `.pkl` files, which we use later to calculate minD scores. If you use ColabFold's google colab notebook, simply make sure you have chekced the "save_all" option under "Advanced settings".
 
