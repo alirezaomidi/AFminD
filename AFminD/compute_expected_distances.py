@@ -63,7 +63,7 @@ def compute_predicted_distances_from_zip(zip_file: str):
 @click.option(
     "-i",
     "--input",
-    type=click.Path(dir_okay=False, file_okay=True),
+    type=click.Path(dir_okay=True, file_okay=True),
     help="Colabfold output directory or a single job zip file",
     required=True,
 )
