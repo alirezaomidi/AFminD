@@ -56,7 +56,7 @@ The `--prominence` and `--distance` values can be adjusted to your needs. We use
 ### Fragment proteins
 Finally, we can cut the protein of interest to the predicted binding site fragments:
 ```bash
-poetry run python -m AFminD.cut_binding_sites -f minD_peaks.csv --input /path/to/fasta/file/used/for/colabfold.fasta -o fragments.fasta --n-jobs 10 --window 30 --chain A
+poetry run python -m AFminD.cut_binding_sites -f minD_peaks.csv --input /path/to/fasta/file/used/for/colabfold.fasta -o fragments.fasta --window 30 --chain A
 ```
 The `--window` option specifies fragment sizes.
 The `--chain` option specifies the protein chains to be fragmented. You can specify multiple chains, e.g. `--chain A --chain B`.
