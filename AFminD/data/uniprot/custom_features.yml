@@ -1,0 +1,9 @@
+E9QNX9:
+  features:
+    - type: "Topological domain"
+      description: "Cytoplasmic"
+      location:
+        start:
+          value: 961
+        end:
+          value: 1369

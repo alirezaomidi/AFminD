@@ -48,7 +48,7 @@ poetry run python -m AFminD.extract_distogram_scores -i /path/to/colabfold/dir/o
 ### Predict binding sites
 A residues with low minD is part of a potential binding site. To find them, we should normalize minD values and project them inversely to the range $[0, 1]$. Where minD scores peak, a potential binding site is predicted. Use the following script to do the normalization and peak finding:
 ```bash
-poetry run python -m AFminD.find_binding_sites -i minD.csv -o minD_peaks.csv --n-jobs 10 --prominence 0.02 --distance 30
+poetry run python -m AFminD.find_binding_sites -i minD.csv -o minD_peaks.csv --prominence 0.02 --distance 30
 ```
 The `--prominence` and `--distance` values can be adjusted to your needs. We use $30$ for the distance option to make sure no two peaks are closer than 30 residues, and $0.02$ for the prominence option to make sure no non-significant peaks are found due to noisy signal.
 
@@ -56,7 +56,7 @@ The `--prominence` and `--distance` values can be adjusted to your needs. We use
 ### Fragment proteins
 Finally, we can cut the protein of interest to the predicted binding site fragments:
 ```bash
-poetry run python -m AFminD.cut_binding_sites -f minD_peaks.csv --fasta-file /path/to/fasta/file/used/for/colabfold.fasta -o fragments.fasta --n-jobs 10 --window 30 --chain A
+poetry run python -m AFminD.cut_binding_sites -f minD_peaks.csv --input /path/to/fasta/file/used/for/colabfold.fasta -o fragments.fasta --n-jobs 10 --window 30 --chain A
 ```
 The `--window` option specifies fragment sizes.
 The `--chain` option specifies the protein chains to be fragmented. You can specify multiple chains, e.g. `--chain A --chain B`.

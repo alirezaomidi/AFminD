@@ -1,3 +1,5 @@
 *.pyc
 *.png
-data
+/data
+AFminD/data/prepare_*
+/notebooks
