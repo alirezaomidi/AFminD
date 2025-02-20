@@ -96,7 +96,7 @@ def main(input, n_jobs, debug):
             try:
                 fut.result()
             except Exception as e:
-                print(f"Error processing {futures[fut]}: {e}")
+                logger.exception(e)
 
 
 if __name__ == "__main__":

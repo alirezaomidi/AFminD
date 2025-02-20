@@ -31,6 +31,7 @@ def find_distogram_files(zip_path):
     df = []
     with zipfile.ZipFile(zip_path) as z:
         distogram_files = [f for f in z.namelist() if f.endswith(".distogram.json")]
+        print(distogram_files)
         for distogram_file in distogram_files:
             pred_jobname, rank, model_name, model, seed, recycle = re.match(
                 r"(.*)_all_rank_(\d+)_(.*)_model_(\d+)_seed_(\d+)(?:\.r(\d+))?\.distogram\.json",
@@ -177,7 +178,7 @@ def main(input, n_jobs, output, from_scratch, debug):
                 result = fut.result()
                 df_pred.append(result)
             except Exception as e:
-                # logger.exception(e)
+                logger.exception(e)
                 pass
         df_pred = pd.concat(df_pred, ignore_index=True)
 
